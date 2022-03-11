@@ -1,0 +1,2 @@
+rootProject.name = "MTC_Spin_App"
+include ':app'
