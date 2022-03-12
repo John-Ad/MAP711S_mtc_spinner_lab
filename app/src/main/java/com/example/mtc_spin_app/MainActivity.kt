@@ -64,7 +64,7 @@ class MainActivity() : AppCompatActivity() {
         try {
             creditAmount = Integer.parseInt(creditAmountText)
         } catch (ex: Exception) {
-            Toast.makeText(this, "Invalid number entered", Toast.LENGTH_SHORT).show()
+            this.showToast("Invalid number entered", Toast.LENGTH_SHORT)
             return
         }
 
@@ -75,7 +75,7 @@ class MainActivity() : AppCompatActivity() {
             in 20..49 -> this.setNumOfSpins(3)
             in 50..Int.MAX_VALUE -> this.setNumOfSpins(5)
             else -> {
-                Toast.makeText(this, "Not enough credit for a spin!", Toast.LENGTH_SHORT).show()
+                this.showToast("Not enough credit for a spin!", Toast.LENGTH_SHORT)
                 return   // return but keep edit field as is
             }
         }
@@ -108,10 +108,10 @@ class MainActivity() : AppCompatActivity() {
             else, set isSpinning to true and continue
          */
         if (this.isSpinning) {
-            Toast.makeText(this, "Wheel is already spinning!", Toast.LENGTH_SHORT).show()
+            this.showToast("Wheel is already spinning!", Toast.LENGTH_SHORT)
             return
         } else
-            this.isSpinning = true
+            this.setIsSpinning(true)
 
         /*
             check if user has any spins available
@@ -119,7 +119,8 @@ class MainActivity() : AppCompatActivity() {
             else, decrease number of spins and continue
          */
         if (this.numOfSpins < 1) {
-            Toast.makeText(this, "You have no spins left!", Toast.LENGTH_SHORT).show()
+            this.showToast("You have no spins left!", Toast.LENGTH_SHORT)
+            this.setIsSpinning(false)
             return
         }
         this.setNumOfSpins(this.numOfSpins - 1)   // num of spins decreased by 1
@@ -131,6 +132,14 @@ class MainActivity() : AppCompatActivity() {
             R.drawable.spin_mtc_3,
             R.drawable.spin_mtc_4,
             R.drawable.spin_mtc_5
+        )
+        //--  prizes to show  --
+        val prizes = arrayOf(
+            "a New Toyota Prius",
+            "a Brand new S21 Ultra",
+            "Twenty Thousand Dollars",
+            "an M1 Macbook Pro",
+            "One Hundred Dollars"
         )
 
         //--  vars for loop control  --
@@ -177,10 +186,32 @@ class MainActivity() : AppCompatActivity() {
                 } else if (iter < NUM_OF_ITER) {
                     handler.postDelayed(this, 100)
                 } else {
+                    index -= 1  // decrease index to show the actual prize won. offsets the index increase done above
+
+                    showToast("Congratulations!!! You won ${prizes[index]}", Toast.LENGTH_LONG)
                     setIsSpinning(false)
                 }
             }
         })
+    }
+
+    private fun showToast(text: String, duration: Int) {
+        /*
+            displays a popup message to the user
+
+             params:
+             -------
+
+                text: String
+                    the text to display to the user
+                duration: Int
+                    how long the message should be displayed
+
+             returns:   void
+             --------
+         */
+
+        Toast.makeText(this, text, duration).show()
     }
 
     private fun setNumOfSpins(spins: Int) {
@@ -206,5 +237,4 @@ class MainActivity() : AppCompatActivity() {
     private fun setIsSpinning(isSpinning: Boolean) {
         this.isSpinning = isSpinning
     }
-
 }
