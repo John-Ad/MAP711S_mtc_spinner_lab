@@ -1,18 +1,16 @@
 package com.example.mtc_spin_app
 
-import android.content.res.Resources
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.Toast
+import android.widget.*
+import java.lang.Exception
 
 class MainActivity() : AppCompatActivity() {
 
     private var isSpinning: Boolean = false
+    private var numOfSpins: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,12 +35,59 @@ class MainActivity() : AppCompatActivity() {
         findViewById<Button>(R.id.btn_spin).setOnClickListener {
             spinWheel()
         }
+
+        findViewById<Button>(R.id.btn_add_credit).setOnClickListener {
+            convertCreditToSpins()
+        }
+    }
+
+    //----   CONVERT CREDIT TO SPINS   ----
+    private fun convertCreditToSpins() {
+        /*
+            takes the credit amount the user entered,
+            checks for errors, and then based on the amount,
+            converts it into spins
+
+             params:    none
+             -------
+
+             returns:   void
+             --------
+         */
+
+        //--  get value from edit text --
+        val creditAmountText: String =
+            (findViewById<EditText>(R.id.edt_credit_amount).text).toString()
+
+        //--  check if value is valid integer  --
+        var creditAmount = 0
+        try {
+            creditAmount = Integer.parseInt(creditAmountText)
+        } catch (ex: Exception) {
+            Toast.makeText(this, "Invalid number entered", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        //--  convert to spins  --
+        when (creditAmount) {
+            in 5..9 -> this.setNumOfSpins(1)
+            in 10..19 -> this.setNumOfSpins(2)
+            in 20..49 -> this.setNumOfSpins(3)
+            in 50..Int.MAX_VALUE -> this.setNumOfSpins(5)
+            else -> {
+                Toast.makeText(this, "Not enough credit for a spin!", Toast.LENGTH_SHORT).show()
+                return   // return but keep edit field as is
+            }
+        }
+
+        //--  clear edit field if successfully added spins  --
+        findViewById<EditText>(R.id.edt_credit_amount).setText("")
     }
 
     //----   SPIN WHEEL   ----
     private fun spinWheel() {
         /*
-
+         checks if user has spins available then
          generates rand num between 1 and 5, this will represent
          the outcome for the spin
          A handler will be created that will scroll through the spin
@@ -59,15 +104,25 @@ class MainActivity() : AppCompatActivity() {
 
         /*
             check if wheel is spinning
-            if yes, display a toast and return.
+            if yes, display a toast and returns.
             else, set isSpinning to true and continue
          */
         if (this.isSpinning) {
-            Toast.makeText(this, "Wheel is already spinning", Toast.LENGTH_SHORT)
+            Toast.makeText(this, "Wheel is already spinning!", Toast.LENGTH_SHORT).show()
             return
         } else
             this.isSpinning = true
 
+        /*
+            check if user has any spins available
+            if not, displays toast and returns
+            else, decrease number of spins and continue
+         */
+        if (this.numOfSpins < 1) {
+            Toast.makeText(this, "You have no spins left!", Toast.LENGTH_SHORT).show()
+            return
+        }
+        this.setNumOfSpins(this.numOfSpins - 1)   // num of spins decreased by 1
 
         //--  image resource ids to loop through  --
         val imageIDs = intArrayOf(
@@ -122,10 +177,34 @@ class MainActivity() : AppCompatActivity() {
                 } else if (iter < NUM_OF_ITER) {
                     handler.postDelayed(this, 100)
                 } else {
-                    isSpinning = false
+                    setIsSpinning(false)
                 }
             }
         })
+    }
+
+    private fun setNumOfSpins(spins: Int) {
+        /*
+            set numOfSpins
+            change text field that shows num of spins
+            to new value
+
+             params:
+             -------
+
+                spins: Int
+                    the new number of spins the user has
+
+             returns:   void
+             --------
+         */
+
+        this.numOfSpins = spins
+        findViewById<TextView>(R.id.txt_spins_avail).text = "Spins Available: ${spins}"
+    }
+
+    private fun setIsSpinning(isSpinning: Boolean) {
+        this.isSpinning = isSpinning
     }
 
 }
